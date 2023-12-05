@@ -1,14 +1,14 @@
 <?php
-// Connexion à la base de données
+//Connexion à la base de données
 $servername = "localhost";
-$username = "admin2";
+$username = "mustapha";
 $password = "Afpa1234";
 $dbname = "mustapha";
 
 try {
     $conn = new PDO("mysql:host=$servername;dbname=$dbname", $username, $password);
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
-    // echo "Connected successfully"; // Pour vérifier que la connexion fonctionne correctement
+    echo "Connected successfully"; // Pour vérifier que la connexion fonctionne correctement
 } catch (PDOException $e) {
     echo "Connection failed: " . $e->getMessage();
     exit(); // Quitte le script en cas d'échec de connexion
@@ -17,7 +17,8 @@ try {
 // Récupérer les données de la base de données (catégorie et plat)
 $sql = "SELECT plat.libelle AS plat_libelle, plat.description, plat.prix, plat.image, plat.id_categorie AS plat_categorie
         FROM plat
-        JOIN categorie ON plat.id_categorie = categorie.id_categorie";
+        JOIN categorie ON plat.id_categorie = categorie.id_categorie
+        LIMIT 6"; // Limiter à 6 plats
 $result = $conn->query($sql);
 
 // Afficher les résultats
@@ -95,8 +96,16 @@ if ($result) {
             echo '</div>';
             echo '</div>';
             echo '</div>';
+            
         }
         echo '</div>'; // Fin du conteneur pour les éléments filtrables
+        
+
+        // Bouton "Voir plus" avec logique AJAX
+        echo '<div id="load-more-container" class="text-center mt-4">';
+        echo '<button class="btn btn-primary" id="load-more">Voir plus</button>';
+        echo '</div>';
+        echo '</div>';
     } else {
         echo "0 results";
     }
@@ -107,3 +116,38 @@ if ($result) {
 // Fermer la connexion
 $conn = null;
 ?>
+
+<!-- Script AJAX pour charger plus d'articles -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+<script>
+    $(document).ready(function () {
+        var limit = 6; // Nombre initial d'articles à afficher
+        var offset = limit; // Décalage pour charger les articles suivants
+
+        // Fonction pour charger plus d'articles
+        function loadMore() {
+            $.ajax({
+                url: "load_more.php", // Remplacez "load_more.php" par le fichier qui récupère plus d'articles depuis la base de données
+                method: "POST",
+                data: { limit: limit, offset: offset },
+                dataType: "html",
+                success: function (data) {
+                    if (data != "") {
+                        $("#load-more-container").before(data);
+                        offset += limit;
+                    } else {
+                        $("#load-more").attr("disabled", true).text("Aucun article supplémentaire");
+                    }
+                },
+                error: function (xhr, status, error) {
+                    console.error(xhr.responseText);
+                }
+            });
+        }
+
+        // Écouteur d'événement pour le clic sur le bouton "Voir plus"
+        $("#load-more").on("click", function () {
+            loadMore();
+        });
+    });
+</script>

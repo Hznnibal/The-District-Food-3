@@ -1,45 +1,36 @@
+<?php
+include 'header.php';
+
+$servername = "localhost";
+$username = "mustapha";
+$password = "Afpa1234";
+$dbname = "mustapha";
+
+// Créez une connexion
+$conn = new mysqli($servername, $username, $password, $dbname);
+
+// Vérifiez la connexion
+if ($conn->connect_error) {
+    die("La connexion a échoué : " . $conn->connect_error);
+}
+
+// Récupérez les données d'articles depuis la base de données
+$sql = "SELECT * FROM plat";
+$result = $conn->query($sql);
+
+// Fermez la connexion,
+$conn->close();
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Commandez en ligne</title>
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-        }
+    <link href="commande.css" rel="stylesheet" />
 
-        form {
-            max-width: 600px;
-            margin: auto;
-        }
 
-        label {
-            display: block;
-            margin-bottom: 8px;
-        }
-
-        input, select, textarea {
-            width: 100%;
-            padding: 8px;
-            margin-bottom: 16px;
-            box-sizing: border-box;
-        }
-
-        button {
-            background-color: #4CAF50;
-            color: white;
-            padding: 10px 15px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-        }
-
-        button:hover {
-            background-color: #45a049;
-        }
-    </style>
 </head>
 <body>
 
@@ -54,9 +45,14 @@
 
         <label for="items">Plats à commander:</label>
         <select id="items" name="items" multiple required>
-            <option value="item1">Article 1</option>
-            <option value="item2">Article 2</option>
-            <option value="item3">Article 3</option>
+            <?php
+            // Affichez les options dynamiquement en utilisant les données de la base de données
+            if ($result->num_rows > 0) {
+                while ($row = $result->fetch_assoc()) {
+                    echo "<option value='" . $row['id'] . "'>" . $row['libelle'] . "</option>";
+                }
+            }
+            ?>
         </select>
 
         <label for="quantity">Quantité:</label>
@@ -64,6 +60,10 @@
 
         <button type="submit">Commander</button>
     </form>
-
 </body>
 </html>
+
+
+<?php include 'footer.php'?>
+
+

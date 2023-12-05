@@ -1,11 +1,7 @@
 <?php
-// Connexion à la base de données (remplacez les valeurs par les vôtres)
+
 include 'db.php';
 
-// Vérifier la connexion
-if ($conn->connect_error) {
-    die("Échec de la connexion à la base de données : " . $conn->connect_error);
-}
 
 // Fonction pour récupérer la liste des plats
 function getplat() {
